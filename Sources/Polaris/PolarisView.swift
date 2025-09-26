@@ -8,9 +8,19 @@
 import SwiftUI
 
 public struct PolarisView<ContainerView: View, DisambiguationView: RouteDisambiguatingView>: View {
-    public let navController: Polaris
-    public let disambiguatingView: DisambiguationView.Type
-    public let containerView: (DisambiguationView) -> ContainerView
+    let navController: Polaris
+    let disambiguatingView: DisambiguationView.Type
+    let containerView: (DisambiguationView) -> ContainerView
+    
+    public init(
+        navController: Polaris,
+        disambiguatingView: DisambiguationView.Type,
+        containerView: @escaping (DisambiguationView) -> ContainerView
+    ) {
+        self.navController = navController
+        self.disambiguatingView = disambiguatingView
+        self.containerView = containerView
+    }
     
     public var body: some View {
         ZStack {
