@@ -8,12 +8,12 @@
 import SwiftUI
 
 @Observable
-class RoutePresentation: EquatableById, @unchecked Sendable {
-    let route: AnyRoute
-    let transition: AnyTransition
-    let id: String
+public class RoutePresentation: EquatableById, @unchecked Sendable {
+    public let route: AnyRoute
+    public let transition: AnyTransition
+    public let id: String
     
-    init(
+    public init(
         route: AnyRoute,
         transition: AnyTransition = .slideFromTrailing,
         id: String = UUID().uuidString

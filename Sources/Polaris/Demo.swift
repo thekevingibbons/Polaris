@@ -21,7 +21,7 @@ struct SomeRootView: View {
     }
 }
 
-class Routes {
+extension Routes {
     enum Foo: AnyRoute {
         case foo(String)
         case ipsem(String, String)

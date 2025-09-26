@@ -26,7 +26,7 @@ protocol EquatableById: Equatable, Identifiable { }
 
 
 extension EquatableById {
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id
     }
 }

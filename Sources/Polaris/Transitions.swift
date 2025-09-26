@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
-extension AnyTransition {
+public extension AnyTransition {
     nonisolated(unsafe) static let slideFromTrailing: AnyTransition = .move(edge: .trailing).combined(with: .opacity)
 }
