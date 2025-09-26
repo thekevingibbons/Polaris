@@ -5,6 +5,7 @@
 import SwiftUI
 
 @MainActor
+@Observable
 public class Polaris: Sendable {
     private(set) var backstack: [RoutePresentation] = []
     
