@@ -1,25 +1,28 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+//
+//  Polaris.swift
+//  Polaris
+//
+//  Created by Kevin Gibbons on 9/26/25.
+//
 
-// Helps with navigation :)
 import SwiftUI
 
 @MainActor
 @Observable
-public class Polaris: Sendable {
-    private(set) var backstack: [RoutePresentation] = []
+public class Navigation: Sendable {
+    private(set) var routeStack: [RoutePresentation] = []
     
-    public var activeFrame: RoutePresentation? {
-        backstack.last
+    public var activeRoute: RoutePresentation? {
+        routeStack.last
     }
     
-    public var topOfBackstackFrame: RoutePresentation? {
-        backstack.safeGet(backstack.count - 2)
+    public var topOfBackstackRoute: RoutePresentation? {
+        routeStack.safeGet(routeStack.count - 2)
     }
     
     public init(presenting route: AnyRoute? = nil) {
         if let route {
-            self.backstack.append(RoutePresentation(route: route))
+            self.routeStack.append(RoutePresentation(route: route))
         }
     }
     
@@ -29,34 +32,34 @@ public class Polaris: Sendable {
         push(newPresentation)
     }
     
-    public func push(_ newFrame: RoutePresentation) {
+    public func push(_ route: RoutePresentation) {
         withAnimation {
-            self.backstack.append(newFrame)
+            self.routeStack.append(route)
         }
     }
     
     public func pushWithoutAnimation(_ route: AnyRoute) {
         let newPresentation = RoutePresentation(route: route)
         
-        self.backstack.append(newPresentation)
+        self.routeStack.append(newPresentation)
     }
     
     @discardableResult
     public func pop() -> RoutePresentation? {
         withAnimation {
-            self.backstack.pop()
+            self.routeStack.pop()
         }
     }
     
     public func clearBackstack()  {
-        if backstack.count > 0 {
-            for _ in 0...backstack.count - 1 {
+        if routeStack.count > 0 {
+            for _ in 0...routeStack.count - 1 {
                 pop()
             }
         }
     }
     
     public var canPop: Bool {
-        backstack.count > 1
+        routeStack.count > 1
     }
 }

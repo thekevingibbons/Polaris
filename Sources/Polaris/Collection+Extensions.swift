@@ -15,7 +15,7 @@ extension Array {
 
 extension Collection where Index == Int {
     /// Given an index, return the value in the Collection at the index if it exists, or `nil` otherwise
-    func safeGet(_ index: Int) -> Element? {
+    internal func safeGet(_ index: Int) -> Element? {
         if indices.contains(index) {
             return self[index]
         }

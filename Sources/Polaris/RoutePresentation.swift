@@ -7,8 +7,9 @@
 
 import SwiftUI
 
+@MainActor
 @Observable
-public class RoutePresentation: EquatableById, @unchecked Sendable {
+public class RoutePresentation: @unchecked Sendable {
     public let route: AnyRoute
     public let transition: AnyTransition
     public let id: String
@@ -21,5 +22,12 @@ public class RoutePresentation: EquatableById, @unchecked Sendable {
         self.route = route
         self.transition = transition
         self.id = id
+    }
+}
+
+
+extension RoutePresentation: Equatable {
+    nonisolated public static func == (lhs: RoutePresentation, rhs: RoutePresentation) -> Bool {
+        lhs.id == rhs.id
     }
 }

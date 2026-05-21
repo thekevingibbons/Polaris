@@ -10,7 +10,7 @@ import SwiftUI
 struct SomeRootView: View {
     var body: some View {
         PolarisView(
-            navController: Polaris(),
+            navigation: Navigation(),
             disambiguatingView: SomeDisambiguationView.self
         ) { content in
             Group {

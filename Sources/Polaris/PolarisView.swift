@@ -8,45 +8,40 @@
 import SwiftUI
 
 public struct PolarisView<ContainerView: View, DisambiguationView: RouteDisambiguatingView>: View {
-    let navController: Polaris
+    let navigation: Navigation
     let disambiguatingView: DisambiguationView.Type
     let containerView: (DisambiguationView) -> ContainerView
     
     public init(
-        navController: Polaris,
+        navigation: Navigation,
         disambiguatingView: DisambiguationView.Type,
         containerView: @escaping (DisambiguationView) -> ContainerView
     ) {
-        self.navController = navController
+        self.navigation = navigation
         self.disambiguatingView = disambiguatingView
         self.containerView = containerView
     }
     
     public var body: some View {
         ZStack {
-            ForEach(Array(navController.backstack.enumerated()), id: \.element.id) { index, routePresentation in
+            ForEach(Array(navigation.routeStack.enumerated()), id: \.element.id) { index, routePresentation in
                 containerView(disambiguatingView.init(route: routePresentation.route))
                     .zIndex(Double(index))
                     .transition(routePresentation.transition)
             }
         }
-        .navController(navController)
+        .navigation(navigation)
     }
 }
 
 
 public extension View {
-    func navController(_ navController: Polaris) -> some View {
-        environment(\.navController, navController)
+    func navigation(_ navigation: Navigation) -> some View {
+        environment(\.navigation, navigation)
     }
 }
 
 
 public extension EnvironmentValues {
-    @Entry var navController: Polaris? = nil
-}
-
-
-public protocol RouteDisambiguatingView: View {
-    init(route: AnyRoute)
+    @Entry var navigation: Navigation? = nil
 }
