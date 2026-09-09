@@ -10,12 +10,12 @@ import SwiftUI
 public struct PolarisView<ContainerView: View, DisambiguationView: RouteDisambiguatingView>: View {
     let navigation: Navigation
     let disambiguatingView: DisambiguationView.Type
-    let containerView: (DisambiguationView) -> ContainerView
+    let containerView: (DisambiguationView, AnyRoute) -> ContainerView
     
     public init(
         navigation: Navigation,
         disambiguatingView: DisambiguationView.Type,
-        containerView: @escaping (DisambiguationView) -> ContainerView
+        containerView: @escaping (DisambiguationView, AnyRoute) -> ContainerView
     ) {
         self.navigation = navigation
         self.disambiguatingView = disambiguatingView
@@ -24,8 +24,8 @@ public struct PolarisView<ContainerView: View, DisambiguationView: RouteDisambig
     
     public var body: some View {
         ZStack {
-            ForEach(Array(navigation.routeStack.enumerated()), id: \.element.id) { index, routePresentation in
-                containerView(disambiguatingView.init(route: routePresentation.route))
+            ForEach(Array(navigation.routes.enumerated()), id: \.element.id) { index, routePresentation in
+                containerView(disambiguatingView.init(route: routePresentation.route), routePresentation.route)
                     .zIndex(Double(index))
                     .transition(routePresentation.transition)
             }

@@ -9,14 +9,14 @@ import SwiftUI
 
 @MainActor
 @Observable
-public class RoutePresentation: @unchecked Sendable {
+public final class RoutePresentation: Sendable {
     public let route: AnyRoute
     public let transition: AnyTransition
     public let id: String
     
     public init(
         route: AnyRoute,
-        transition: AnyTransition = .slideFromTrailing,
+        transition: AnyTransition = RoutePresentation.defaultTransition,
         id: String = UUID().uuidString
     ) {
         self.route = route
@@ -27,7 +27,12 @@ public class RoutePresentation: @unchecked Sendable {
 
 
 extension RoutePresentation: Equatable {
-    nonisolated public static func == (lhs: RoutePresentation, rhs: RoutePresentation) -> Bool {
+    public static func == (lhs: RoutePresentation, rhs: RoutePresentation) -> Bool {
         lhs.id == rhs.id
     }
+}
+
+
+extension RoutePresentation {
+    public static var defaultTransition: AnyTransition = .move(edge: .trailing).combined(with: .opacity)
 }

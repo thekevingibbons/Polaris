@@ -10,20 +10,16 @@ import SwiftUI
 @MainActor
 @Observable
 public class Navigation: Sendable {
-    private(set) var routeStack: [RoutePresentation] = []
+    public private(set) var routes: [RoutePresentation] = []
     
-    public var activeRoute: RoutePresentation? {
-        routeStack.last
-    }
-    
-    public var topOfBackstackRoute: RoutePresentation? {
-        routeStack.safeGet(routeStack.count - 2)
-    }
-    
-    public init(presenting route: AnyRoute? = nil) {
+    public init(route: AnyRoute? = nil) {
         if let route {
-            self.routeStack.append(RoutePresentation(route: route))
+            self.routes.append(RoutePresentation(route: route))
         }
+    }
+    
+    public init(presention: RoutePresentation) {
+        self.routes.append(presention)
     }
     
     public func push(_ route: AnyRoute) {
@@ -34,32 +30,58 @@ public class Navigation: Sendable {
     
     public func push(_ route: RoutePresentation) {
         withAnimation {
-            self.routeStack.append(route)
+            self.routes.append(route)
         }
     }
     
-    public func pushWithoutAnimation(_ route: AnyRoute) {
-        let newPresentation = RoutePresentation(route: route)
+    public func pushAsNewRoot(_ route: AnyRoute) {
+        popAll()
         
-        self.routeStack.append(newPresentation)
+        withAnimation {
+            self.routes.append(RoutePresentation(route: route))
+        }
+    }
+    
+    public func pushAsNewRoot(_ route: RoutePresentation) {
+        popAll()
+        
+        withAnimation {
+            self.routes.append(route)
+        }
     }
     
     @discardableResult
     public func pop() -> RoutePresentation? {
         withAnimation {
-            self.routeStack.pop()
+            self.routes.pop()
         }
     }
     
-    public func clearBackstack()  {
-        if routeStack.count > 0 {
-            for _ in 0...routeStack.count - 1 {
+    public func popToRoot() {
+        withAnimation {
+            while routes.count > 1 {
                 pop()
             }
         }
     }
     
-    public var canPop: Bool {
-        routeStack.count > 1
+    public func popAll()  {
+        withAnimation {
+            while routes.count > 0 {
+                pop()
+            }
+        }
+    }
+}
+
+
+// MARK: Computed vars
+extension Navigation {
+    public var presentedRoute: RoutePresentation? {
+        routes.last
+    }
+    
+    public var topOfBackstackRoute: RoutePresentation? {
+        routes.safeGet(routes.count - 2)
     }
 }

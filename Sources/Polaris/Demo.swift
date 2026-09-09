@@ -12,7 +12,7 @@ struct SomeRootView: View {
         PolarisView(
             navigation: Navigation(),
             disambiguatingView: SomeDisambiguationView.self
-        ) { content in
+        ) { content, route in
             Group {
                 content
             }
