@@ -21,16 +21,13 @@ public final class RoutePresentation: Sendable {
     ) {
         self.route = route
         self.transition = transition
-        self.id = id
-    }
-    
-    public init<T: AnyRoute & Identifiable>(
-        route: T,
-        transition: AnyTransition = RoutePresentation.defaultTransition
-    ) {
-        self.route = route
-        self.transition = transition
-        self.id = "\(route.id)"
+        
+        // If the Route conforms to Identifiable, use its ID
+        if let route = route as? any Identifiable {
+            self.id = "\(route.id)"
+        } else {
+            self.id = id
+        }
     }
 }
 
