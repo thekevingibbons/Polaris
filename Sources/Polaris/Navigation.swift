@@ -89,3 +89,17 @@ extension Navigation {
         routes.safeGet(routes.count - 2)
     }
 }
+
+
+extension Navigation {
+    public func backStackValue<T, Value>(for keyPath: KeyPath<T, Value?>) -> Value? {
+        for routePresentation in routes.reversed() {
+            if let valueContainer = routePresentation.route as? T,
+               let value = valueContainer[keyPath: keyPath] {
+                return value
+            }
+        }
+        
+        return nil
+    }
+}
