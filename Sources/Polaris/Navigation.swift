@@ -25,17 +25,21 @@ public class Navigation: Sendable {
     public func push(_ route: AnyRoute) {
         let newPresentation = RoutePresentation(route: route)
         
+        guard newPresentation.id != routes.last?.id else { return }
+        
         push(newPresentation)
     }
     
     public func push(_ route: RoutePresentation) {
+        guard route.id != routes.last?.id else { return }
+        
         withAnimation {
             self.routes.append(route)
         }
     }
     
     public func pushAsNewRoot(_ route: AnyRoute) {
-        popAll()
+        self.routes = []
         
         withAnimation {
             self.routes.append(RoutePresentation(route: route))
@@ -43,7 +47,7 @@ public class Navigation: Sendable {
     }
     
     public func pushAsNewRoot(_ route: RoutePresentation) {
-        popAll()
+        self.routes = []
         
         withAnimation {
             self.routes.append(route)
