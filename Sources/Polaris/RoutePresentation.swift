@@ -14,14 +14,23 @@ public final class RoutePresentation: Sendable {
     public let transition: AnyTransition
     public let id: String
     
-    public init<T: AnyRoute>(
-        route: T,
+    public init(
+        route: AnyRoute,
         transition: AnyTransition = RoutePresentation.defaultTransition,
-        id: String = String(describing: T.self)
+        id: String = UUID().uuidString
     ) {
         self.route = route
         self.transition = transition
         self.id = id
+    }
+    
+    public init<T: AnyRoute & Identifiable>(
+        route: T,
+        transition: AnyTransition = RoutePresentation.defaultTransition
+    ) {
+        self.route = route
+        self.transition = transition
+        self.id = "\(route.id)"
     }
 }
 
