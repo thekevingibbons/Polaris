@@ -34,7 +34,7 @@ public class Navigation: Sendable {
         guard route.id != routes.last?.id else { return }
         
         if let hasRequiredProperties = route.route as? HasRequired {
-            for requiredProperty in hasRequiredProperties.requiredProperties {
+            for case let requiredProperty as SetsRequiredValue in hasRequiredProperties.requiredProperties {
                 try requiredProperty.setValue(from: self)
             }
         }
@@ -119,9 +119,11 @@ extension Navigation {
 }
 
 
-protocol RequiredTypeEraser {
+protocol SetsRequiredValue {
     func setValue(from navigation: Navigation) throws
 }
+
+public protocol RequiredTypeEraser { }
 
 
 @MainActor
@@ -156,7 +158,7 @@ public final class Required<T, Value>: RequiredTypeEraser {
 }
 
 
-protocol HasRequired {
+public protocol HasRequired {
     var requiredProperties: [any RequiredTypeEraser] { get }
 }
 
@@ -185,10 +187,10 @@ protocol ProvidesSomeInt {
 extension Routes.BarGroup.AnotherRoute: ProvidesAnotherString { }
 extension Routes.BarGroup.AnotherRoute: ProvidesSomeInt { }
 
-extension Navigation {
-    func pushRouteWithRequirements<T: AnyRoute & HasRequired>(_ route: T) throws {
-        for requiredProperty in route.requiredProperties {
-            try requiredProperty.setValue(from: self)
-        }
-    }
-}
+//extension Navigation {
+//    func pushRouteWithRequirements<T: AnyRoute & HasRequired>(_ route: T) throws {
+//        for case let requiredProperty as SetsRequiredValue in route.requiredProperties {
+//            try requiredProperty.setValue(from: self)
+//        }
+//    }
+//}
