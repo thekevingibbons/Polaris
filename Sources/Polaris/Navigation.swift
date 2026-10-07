@@ -92,14 +92,22 @@ extension Navigation {
 
 
 extension Navigation {
-    public func backStackValue<T, Value>(for keyPath: KeyPath<T, Value?>) -> Value? {
+    public func backStackValue<T, Value>(for keyPath: KeyPath<T, Value>) throws -> Value {
+        // We want to check for the given value starting with the Route closest to the
+        // currently-presented Route and ending with the root Route, so we use .reversed() here
         for routePresentation in routes.reversed() {
-            if let valueContainer = routePresentation.route as? T,
-               let value = valueContainer[keyPath: keyPath] {
-                return value
+            if let valueContainer = routePresentation.route as? T {
+                return valueContainer[keyPath: keyPath]
             }
         }
         
-        return nil
+        throw Errors.missingBackStackValue(keyPathDescription: String(reflecting: keyPath))
+    }
+}
+
+
+extension Navigation {
+    enum Errors: Error {
+        case missingBackStackValue(keyPathDescription: String)
     }
 }
