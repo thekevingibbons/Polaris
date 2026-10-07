@@ -21,14 +21,27 @@ struct SomeRootView: View {
     }
 }
 
+
+protocol FooRoute: AnyRoute { }
+protocol BarRoute: AnyRoute { }
+
 extension Routes {
-    enum Foo: AnyRoute {
-        case foo(String)
-        case ipsem(String, String)
+    enum FooGroup {
+        struct Lorem: FooRoute {
+            let someString: String
+        }
+        
+        struct Ipsem: FooRoute {
+            let string1: String
+            let string2: String
+        }
     }
     
-    enum Bar: AnyRoute {
-        case bar(String)
+    enum BarGroup {
+        struct AnotherRoute: BarRoute {
+            let anotherString: String
+            let someInt: Int
+        }
     }
 }
 
@@ -37,45 +50,41 @@ struct SomeDisambiguationView: RouteDisambiguatingView {
     let route: AnyRoute
     
     var body: some View {
-        if let route = route as? Routes.Foo {
+        if let route = route as? FooRoute {
             SpecificDisambiguationView(route: route)
-        } else if let route = route as? Routes.Bar {
-            switch route {
-            case .bar(let barString): BarView(bar: barString)
+        } else if let route = route as? BarRoute {
+            if let route = route as? Routes.BarGroup.AnotherRoute {
+                BarView(bar: route.anotherString)
             }
         }
     }
 }
 
+
 struct SpecificDisambiguationView: View {
-    let route: Routes.Foo
+    let route: FooRoute
     
     var body: some View {
         switch route {
-        case .foo(let fooString):
-            FooView(foo: fooString)
-        case .ipsem(let string1, let string2):
-            IpsemView(string1: string1, string2: string2)
+        case let route as Routes.FooGroup.Lorem:
+            LoremView(loremString: route.someString)
+        case let route as Routes.FooGroup.Ipsem:
+            IpsemView(string1: route.string1, string2: route.string2)
+        default:
+            fatalError()
         }
     }
 }
 
 
-struct FooView: View {
-    let foo: String
+struct LoremView: View {
+    let loremString: String
     
     var body: some View {
-        Text(foo)
+        Text(loremString)
     }
 }
 
-struct BarView: View {
-    let bar: String
-    
-    var body: some View {
-        Text(bar)
-    }
-}
 
 struct IpsemView: View {
     let string1: String
@@ -83,5 +92,14 @@ struct IpsemView: View {
     
     var body: some View {
         Text(string1 + string2)
+    }
+}
+
+
+struct BarView: View {
+    let bar: String
+    
+    var body: some View {
+        Text(bar)
     }
 }
