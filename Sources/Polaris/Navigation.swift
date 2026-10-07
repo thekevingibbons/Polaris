@@ -119,7 +119,7 @@ extension Navigation {
 }
 
 
-protocol SetsRequiredValue {
+protocol SetsRequiredValue: RequiredTypeEraser {
     func setValue(from navigation: Navigation) throws
 }
 
@@ -128,7 +128,7 @@ public protocol RequiredTypeEraser { }
 
 @MainActor
 @propertyWrapper
-public final class Required<T, Value>: RequiredTypeEraser {
+public final class Required<T, Value>: SetsRequiredValue {
     private var storedValue: Value?
     private let keyPath: KeyPath<T, Value>
 
