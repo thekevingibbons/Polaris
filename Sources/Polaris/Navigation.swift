@@ -130,12 +130,15 @@ public protocol RequiredTypeEraser { }
 @propertyWrapper
 public final class Required<T, Value>: SetsRequiredValue {
     private var storedValue: Value?
+    private let fallbackValue: Value?
     private let keyPath: KeyPath<T, Value>
 
     public var wrappedValue: Value {
         get {
             if let storedValue {
                 return storedValue
+            } else if let fallbackValue {
+                return fallbackValue
             }
             
             fatalError("@@@Ktg")
@@ -150,6 +153,12 @@ public final class Required<T, Value>: SetsRequiredValue {
 
     public init(_ keyPath: KeyPath<T, Value>) {
         self.keyPath = keyPath
+        self.fallbackValue = nil
+    }
+    
+    public init(_ keyPath: KeyPath<T, Value>, fallbackValue: Value) {
+        self.keyPath = keyPath
+        self.fallbackValue = fallbackValue
     }
     
     internal func setValue(from navigation: Navigation) throws {
@@ -186,11 +195,3 @@ protocol ProvidesSomeInt {
 
 extension Routes.BarGroup.AnotherRoute: ProvidesAnotherString { }
 extension Routes.BarGroup.AnotherRoute: ProvidesSomeInt { }
-
-//extension Navigation {
-//    func pushRouteWithRequirements<T: AnyRoute & HasRequired>(_ route: T) throws {
-//        for case let requiredProperty as SetsRequiredValue in route.requiredProperties {
-//            try requiredProperty.setValue(from: self)
-//        }
-//    }
-//}
