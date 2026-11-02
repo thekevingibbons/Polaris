@@ -14,12 +14,12 @@ public class Navigation: Sendable {
     
     public init(route: AnyRoute? = nil) {
         if let route {
-            self.routes.append(RoutePresentation(route: route))
+            pushWithIntereceptors(RoutePresentation(route: route))
         }
     }
     
     public init(presention: RoutePresentation) {
-        self.routes.append(presention)
+        pushWithIntereceptors(presention)
     }
     
     public func push(_ route: AnyRoute) {
@@ -33,38 +33,46 @@ public class Navigation: Sendable {
     public func push(_ route: RoutePresentation) {
         guard route.id != routes.last?.id else { return }
         
-        withAnimation {
-            self.routes.append(route)
-        }
+        pushWithIntereceptors(route)
     }
     
     public func pushAsNewRoot(_ route: AnyRoute) {
         self.routes = []
         
-        withAnimation {
-            self.routes.append(RoutePresentation(route: route))
-        }
+        pushWithIntereceptors(RoutePresentation(route: route))
     }
     
     public func pushAsNewRoot(_ route: RoutePresentation) {
         self.routes = []
         
+        pushWithIntereceptors(route)
+    }
+    
+    private func pushWithIntereceptors(_ presentation: RoutePresentation) {
+        presentation.interceptors.willPush.forEach {
+            $0.closure(presentation.route, presentation.id)
+        }
+        
         withAnimation {
-            self.routes.append(route)
+            self.routes.append(presentation)
+        }
+        
+        presentation.interceptors.didPush.forEach {
+            $0.closure(presentation.route, presentation.id)
         }
     }
     
     @discardableResult
     public func pop() -> RoutePresentation? {
-        withAnimation {
-            self.routes.pop()
-        }
+//        withAnimation {
+            popWithIntereceptors()
+//        }
     }
     
     public func popToRoot() {
         withAnimation {
             while routes.count > 1 {
-                pop()
+                popWithIntereceptors()
             }
         }
     }
@@ -72,9 +80,28 @@ public class Navigation: Sendable {
     public func popAll()  {
         withAnimation {
             while routes.count > 0 {
-                pop()
+                popWithIntereceptors()
             }
         }
+    }
+    
+    @discardableResult
+    private func popWithIntereceptors() -> RoutePresentation? {
+        guard let poppedPresentation = routes.last else { return nil }
+        
+        poppedPresentation.interceptors.willPop.forEach {
+            $0.closure(poppedPresentation.route, poppedPresentation.id)
+        }
+        
+        _ = withAnimation {
+            self.routes.pop()
+        }
+        
+        poppedPresentation.interceptors.didPop.forEach {
+            $0.closure(poppedPresentation.route, poppedPresentation.id)
+        }
+        
+        return poppedPresentation
     }
 }
 
