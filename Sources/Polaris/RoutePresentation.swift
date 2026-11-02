@@ -14,7 +14,7 @@ public final class RoutePresentation: Sendable {
     public let transition: AnyTransition
     public let id: String
     
-    private(set) var interceptors: [Interceptor.Temp: [Interceptor]] = [:]
+    private(set) var interceptors: [Interceptor.Step: [Interceptor]] = [:]
     
     public init(
         route: AnyRoute,
@@ -33,8 +33,8 @@ public final class RoutePresentation: Sendable {
     }
     
     @discardableResult
-    public func addInterceptor(_ interceptor: Interceptor, temp: Interceptor.Temp) -> RoutePresentation {
-        interceptors[temp, default: []].append(interceptor)
+    public func addInterceptor(at step: Interceptor.Step, _ closure: @escaping @MainActor @Sendable (AnyRoute, String) -> Void) -> RoutePresentation {
+        interceptors[step, default: []].append(Interceptor(closure: closure))
         
         return self
     }
@@ -81,7 +81,7 @@ public struct Interceptor {
         self.closure = closure
     }
     
-    public enum Temp {
+    public enum Step {
         case willPush
         case didPush
         case willPop
