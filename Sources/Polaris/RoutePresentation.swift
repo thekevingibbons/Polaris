@@ -14,7 +14,7 @@ public final class RoutePresentation: Sendable {
     public let transition: AnyTransition
     public let id: String
     
-    public let interceptors = InterceptorContainer()
+    private(set) var interceptors: [Interceptor.Temp: [Interceptor]] = [:]
     
     public init(
         route: AnyRoute,
@@ -31,14 +31,62 @@ public final class RoutePresentation: Sendable {
             self.id = id
         }
     }
+    
+    @discardableResult
+    public func addInterceptor(_ interceptor: Interceptor, temp: Interceptor.Temp) -> RoutePresentation {
+        interceptors[temp, default: []].append(interceptor)
+        
+        return self
+    }
 }
 
 
-public struct InterceptorContainer {
-    public var willPop: [Interceptors.WillPop] = []
-    public var didPop: [Interceptors.DidPop] = []
-    public var willPush: [Interceptors.WillPush] = []
-    public var didPush: [Interceptors.DidPush] = []
+extension RoutePresentation {
+    var willPopIntereceptors: [Interceptor] {
+        interceptors[.willPop] ?? []
+    }
+    
+    var didPopIntereceptors: [Interceptor] {
+        interceptors[.didPop] ?? []
+    }
+    
+    var willPushIntereceptors: [Interceptor] {
+        interceptors[.willPush] ?? []
+    }
+    
+    var didPushIntereceptors: [Interceptor] {
+        interceptors[.didPush] ?? []
+    }
+}
+
+
+//struct InterceptorContainer {
+//    var willPop: [Interceptors.WillPop] = []
+//    var didPop: [Interceptors.DidPop] = []
+//    var willPush: [Interceptors.WillPush] = []
+//    var didPush: [Interceptors.DidPush] = []
+//    
+//    var intereceptors:
+//    
+//    mutating func addInterceptor(_ interceptor: any Interceptors.Intercepts) {
+//        
+//    }
+//}
+
+@MainActor
+public struct Interceptor {
+    public let closure: @MainActor (AnyRoute, String) -> Void
+    
+    public init(closure: @escaping @MainActor @Sendable (any AnyRoute, String) -> Void) {
+        self.closure = closure
+    }
+    
+    public enum Temp {
+        case willPush
+        case didPush
+        case willPop
+        case didPop
+    }
 }
 
 
@@ -54,47 +102,50 @@ extension RoutePresentation {
 }
 
 
-public enum Interceptors {
-    protocol Intercepts {
-        func intercept(_ route: AnyRoute, id: String)
-    }
-}
 
-
-extension Interceptors {
-    @MainActor
-    public struct WillPop: Intercepts {
-        public let closure: @MainActor (AnyRoute, String) -> Void
-        
-        func intercept(_ route: AnyRoute, id: String) {
-            closure(route, id)
-        }
-    }
-    
-    @MainActor
-    public struct DidPop: Intercepts {
-        public let closure: @MainActor (AnyRoute, String) -> Void
-        
-        func intercept(_ route: AnyRoute, id: String) {
-            closure(route, id)
-        }
-    }
-    
-    @MainActor
-    public struct WillPush: Intercepts {
-        public let closure: @MainActor (AnyRoute, String) -> Void
-        
-        func intercept(_ route: AnyRoute, id: String) {
-            closure(route, id)
-        }
-    }
-    
-    @MainActor
-    public struct DidPush: Intercepts {
-        public let closure: @MainActor (AnyRoute, String) -> Void
-        
-        func intercept(_ route: AnyRoute, id: String) {
-            closure(route, id)
-        }
-    }
-}
+//
+//
+//enum Interceptors {
+//    protocol Intercepts {
+//        func intercept(_ route: AnyRoute, id: String)
+//    }
+//}
+//
+//
+//extension Interceptors {
+//    @MainActor
+//    struct WillPop: Intercepts {
+//        let closure: @MainActor (AnyRoute, String) -> Void
+//        
+//        func intercept(_ route: AnyRoute, id: String) {
+//            closure(route, id)
+//        }
+//    }
+//    
+//    @MainActor
+//    struct DidPop: Intercepts {
+//        let closure: @MainActor (AnyRoute, String) -> Void
+//        
+//        func intercept(_ route: AnyRoute, id: String) {
+//            closure(route, id)
+//        }
+//    }
+//    
+//    @MainActor
+//    struct WillPush: Intercepts {
+//        let closure: @MainActor (AnyRoute, String) -> Void
+//        
+//        func intercept(_ route: AnyRoute, id: String) {
+//            closure(route, id)
+//        }
+//    }
+//    
+//    @MainActor
+//    struct DidPush: Intercepts {
+//        let closure: @MainActor (AnyRoute, String) -> Void
+//        
+//        func intercept(_ route: AnyRoute, id: String) {
+//            closure(route, id)
+//        }
+//    }
+//}

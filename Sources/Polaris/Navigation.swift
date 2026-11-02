@@ -49,7 +49,7 @@ public class Navigation: Sendable {
     }
     
     private func pushWithIntereceptors(_ presentation: RoutePresentation) {
-        presentation.interceptors.willPush.forEach {
+        presentation.willPushIntereceptors.forEach {
             $0.closure(presentation.route, presentation.id)
         }
         
@@ -57,7 +57,7 @@ public class Navigation: Sendable {
             self.routes.append(presentation)
         }
         
-        presentation.interceptors.didPush.forEach {
+        presentation.didPushIntereceptors.forEach {
             $0.closure(presentation.route, presentation.id)
         }
     }
@@ -89,7 +89,7 @@ public class Navigation: Sendable {
     private func popWithIntereceptors() -> RoutePresentation? {
         guard let poppedPresentation = routes.last else { return nil }
         
-        poppedPresentation.interceptors.willPop.forEach {
+        poppedPresentation.willPopIntereceptors.forEach {
             $0.closure(poppedPresentation.route, poppedPresentation.id)
         }
         
@@ -97,7 +97,7 @@ public class Navigation: Sendable {
             self.routes.pop()
         }
         
-        poppedPresentation.interceptors.didPop.forEach {
+        poppedPresentation.didPopIntereceptors.forEach {
             $0.closure(poppedPresentation.route, poppedPresentation.id)
         }
         
