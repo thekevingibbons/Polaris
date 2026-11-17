@@ -81,7 +81,7 @@ public class Navigation: Sendable {
     
     public func popAll<T: AnyRoute>(_ type: T.Type) {
         withAnimation {
-            self.routes.removeAll { $0 is T }
+            self.routes.removeAll { $0.route is T }
         }
     }
 }
