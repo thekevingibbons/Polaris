@@ -10,7 +10,7 @@ import SwiftUI
 @MainActor
 @Observable
 public class Navigation: Sendable {
-    public private(set) var routes: [RoutePresentation] = []
+    public var routes: [RoutePresentation] = []
     
     public init(route: AnyRoute? = nil) {
         if let route {
@@ -55,8 +55,10 @@ public class Navigation: Sendable {
     }
     
     @discardableResult
-    public func pop() -> RoutePresentation? {
-        withAnimation {
+    public func pop(includingRoot: Bool = false) -> RoutePresentation? {
+        guard includingRoot || routes.count > 1 else { return nil }
+        
+        return withAnimation {
             self.routes.pop()
         }
     }
@@ -72,21 +74,15 @@ public class Navigation: Sendable {
     public func popAll()  {
         withAnimation {
             while routes.count > 0 {
-                pop()
+                pop(includingRoot: true)
             }
         }
     }
-}
-
-
-// MARK: Computed vars
-extension Navigation {
-    public var presentedRoute: RoutePresentation? {
-        routes.last
-    }
     
-    public var topOfBackstackRoute: RoutePresentation? {
-        routes.safeGet(routes.count - 2)
+    public func popAll<T: AnyRoute>(_ type: T.Type) {
+        withAnimation {
+            self.routes.removeAll { $0 is T }
+        }
     }
 }
 
