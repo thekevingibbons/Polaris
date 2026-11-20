@@ -10,7 +10,7 @@ import SwiftUI
 @MainActor
 @Observable
 public class Navigation: Sendable {
-    public private(set) var routes: [RoutePresentation] = []
+    public var routes: [RoutePresentation] = []
     
     public init(route: AnyRoute? = nil) {
         if let route {
@@ -54,13 +54,19 @@ public class Navigation: Sendable {
         }
     }
     
+    /// Pops the RoutePresentation at the top of the stack.
+    /// - Parameter includingRoot: Prevent popping the last RoutePresentation unless set to `true`
+    /// - Returns: The popped RoutePresentation
     @discardableResult
-    public func pop() -> RoutePresentation? {
-        withAnimation {
+    public func pop(includingRoot: Bool = false) -> RoutePresentation? {
+        guard includingRoot || routes.count > 1 else { return nil }
+        
+        return withAnimation {
             self.routes.pop()
         }
     }
     
+    /// Pops all RoutePresentations off the stack except for the last one
     public func popToRoot() {
         withAnimation {
             while routes.count > 1 {
@@ -69,24 +75,23 @@ public class Navigation: Sendable {
         }
     }
     
+    /// Pops all RoutePresentations off the stack, _including_ the last one.
+    ///
+    /// This functionally removes the PolarisView from being presented to the user, as calling this will
+    /// result in zero RoutePresentations being left on the stack.
     public func popAll()  {
         withAnimation {
             while routes.count > 0 {
-                pop()
+                pop(includingRoot: true)
             }
         }
     }
-}
-
-
-// MARK: Computed vars
-extension Navigation {
-    public var presentedRoute: RoutePresentation? {
-        routes.last
-    }
     
-    public var topOfBackstackRoute: RoutePresentation? {
-        routes.safeGet(routes.count - 2)
+    /// Removes all RoutePresentations whose type matches that of the `type` parameter. 
+    public func popAll<T: AnyRoute>(_ type: T.Type) {
+        withAnimation {
+            self.routes.removeAll { $0.route is T }
+        }
     }
 }
 
